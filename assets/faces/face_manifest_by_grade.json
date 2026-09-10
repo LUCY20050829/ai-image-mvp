@@ -1,0 +1,189 @@
+﻿{
+  "updated_at": "2026-09-07 15:26:46",
+  "note": "按学段整理的人物脸图。后端优先按 grade_band 子目录查找，找不到再回退旧扁平目录。",
+  "grades": {
+    "lower_primary": [
+      {
+        "grade_band": "lower_primary",
+        "person": "骆宾王",
+        "source_row": 2,
+        "image_id": "ID_0948A4A89C854CBCBE715FC8FEDFA6F0",
+        "path": "assets/faces/lower_primary/小低_骆宾王_face.png"
+      },
+      {
+        "grade_band": "lower_primary",
+        "person": "王维",
+        "source_row": 3,
+        "image_id": "ID_C27DB3F6E412497DB7159B944992D3D5",
+        "path": "assets/faces/lower_primary/小低_王维_face.webp"
+      },
+      {
+        "grade_band": "lower_primary",
+        "person": "李绅",
+        "source_row": 4,
+        "image_id": "ID_B90F02FE09C34B63B1CBB4F0EEC2A638",
+        "path": "assets/faces/lower_primary/小低_李绅_face.png"
+      },
+      {
+        "grade_band": "lower_primary",
+        "person": "李白",
+        "source_row": 5,
+        "image_id": "ID_704347748EAB420F964D708844EED3BB",
+        "path": "assets/faces/lower_primary/小低_李白_face.png"
+      },
+      {
+        "grade_band": "lower_primary",
+        "person": "李峤",
+        "source_row": 10,
+        "image_id": "ID_7A849B04936F4968AAB20246EF77C85A",
+        "path": "assets/faces/lower_primary/小低_李峤_face.png"
+      },
+      {
+        "grade_band": "lower_primary",
+        "person": "孔子",
+        "source_row": 11,
+        "image_id": "ID_1160AE89C83A4AF7B27ECA59E2E050F3",
+        "path": "assets/faces/lower_primary/小低_孔子_face.png"
+      },
+      {
+        "grade_band": "lower_primary",
+        "person": "荀子",
+        "source_row": 12,
+        "image_id": "ID_EA17881101CF4BE9B60250243D01200D",
+        "path": "assets/faces/lower_primary/小低_荀子_face.png"
+      },
+      {
+        "grade_band": "lower_primary",
+        "person": "唐寅",
+        "source_row": 13,
+        "image_id": "ID_66AE5ABBFECA4914944AABE865EA9531",
+        "path": "assets/faces/lower_primary/小低_唐寅_face.png"
+      },
+      {
+        "grade_band": "lower_primary",
+        "person": "屈原",
+        "source_row": 14,
+        "image_id": "ID_7377B3F4326D4D6AB81966D1387C4B26",
+        "path": "assets/faces/lower_primary/小低_屈原_face.png"
+      },
+      {
+        "grade_band": "lower_primary",
+        "person": "孔融",
+        "source_row": 15,
+        "image_id": "ID_C01FEB86D6DF4008A810BE8B531CEBB5",
+        "path": "assets/faces/lower_primary/小低_孔融_face.png"
+      },
+      {
+        "grade_band": "lower_primary",
+        "person": "曹植",
+        "source_row": 16,
+        "image_id": "ID_506CCB2060214D19B238FAEAAE5371CF",
+        "path": "assets/faces/lower_primary/小低_曹植_face.png"
+      }
+    ],
+    "middle_upper_primary": [
+      {
+        "grade_band": "middle_upper_primary",
+        "person": "李白",
+        "path": "assets/faces/middle_upper_primary/小中小高_李白_face.png"
+      },
+      {
+        "grade_band": "middle_upper_primary",
+        "person": "刘禹锡",
+        "path": "assets/faces/middle_upper_primary/小中小高_刘禹锡_face.webp"
+      },
+      {
+        "grade_band": "middle_upper_primary",
+        "person": "孟浩然",
+        "path": "assets/faces/middle_upper_primary/小中小高_孟浩然_face.png"
+      },
+      {
+        "grade_band": "middle_upper_primary",
+        "person": "李商隐",
+        "path": "assets/faces/middle_upper_primary/小中小高_李商隐_face.webp"
+      },
+      {
+        "grade_band": "middle_upper_primary",
+        "person": "李白",
+        "path": "assets/faces/middle_upper_primary/小中小高_李白_face.webp"
+      },
+      {
+        "grade_band": "middle_upper_primary",
+        "person": "李贺",
+        "path": "assets/faces/middle_upper_primary/小中小高_李贺_face.webp"
+      },
+      {
+        "grade_band": "middle_upper_primary",
+        "person": "杜牧",
+        "path": "assets/faces/middle_upper_primary/小中小高_杜牧_face.webp"
+      },
+      {
+        "grade_band": "middle_upper_primary",
+        "person": "杜甫",
+        "path": "assets/faces/middle_upper_primary/小中小高_杜甫_face.webp"
+      },
+      {
+        "grade_band": "middle_upper_primary",
+        "person": "王昌龄",
+        "path": "assets/faces/middle_upper_primary/小中小高_王昌龄_face.webp"
+      },
+      {
+        "grade_band": "middle_upper_primary",
+        "person": "王维",
+        "path": "assets/faces/middle_upper_primary/小中小高_王维_face.png"
+      },
+      {
+        "grade_band": "middle_upper_primary",
+        "person": "白居易",
+        "path": "assets/faces/middle_upper_primary/小中小高_白居易_face.webp"
+      },
+      {
+        "grade_band": "middle_upper_primary",
+        "person": "苏轼",
+        "path": "assets/faces/middle_upper_primary/小中小高_苏轼_face.webp"
+      },
+      {
+        "grade_band": "middle_upper_primary",
+        "person": "虞世南",
+        "path": "assets/faces/middle_upper_primary/小中小高_虞世南_face.webp"
+      },
+      {
+        "grade_band": "middle_upper_primary",
+        "person": "贺知章",
+        "path": "assets/faces/middle_upper_primary/小中小高_贺知章_face.webp"
+      },
+      {
+        "grade_band": "middle_upper_primary",
+        "person": "陶渊明",
+        "path": "assets/faces/middle_upper_primary/小中小高_陶渊明_face.webp"
+      },
+      {
+        "grade_band": "middle_upper_primary",
+        "person": "韩愈",
+        "path": "assets/faces/middle_upper_primary/小中小高_韩愈_face.webp"
+      }
+    ]
+  },
+  "missing_lower_rows": [
+    {
+      "row": 6,
+      "person": "孟浩然",
+      "image_id": ""
+    },
+    {
+      "row": 7,
+      "person": "贾岛",
+      "image_id": ""
+    },
+    {
+      "row": 8,
+      "person": "白居易",
+      "image_id": ""
+    },
+    {
+      "row": 9,
+      "person": "杨万里",
+      "image_id": ""
+    }
+  ]
+}

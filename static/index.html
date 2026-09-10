@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI 自动化生图工作台</title>
+    <link rel="stylesheet" href="/static/styles.css?v=20260905-lines2" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div>
+          <h1>AI 自动化生图工作台</h1>
+        </div>
+        <div class="hero-status">
+          <span class="status-label">当前状态</span>
+          <span class="status-pill" id="statusPill">待命</span>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="panel form-panel">
+          <div class="panel-head">
+            <div>
+              <h2>任务配置</h2>
+            </div>
+          </div>
+
+          <form id="taskForm" class="task-form">
+            <section class="form-stage">
+
+              <div class="choice-field">
+                <span class="field-title">学段</span>
+                <div class="segmented" role="radiogroup" aria-label="学段">
+                  <button type="button" class="choice-btn" data-choice-group="grade" data-value="lower_primary">小低</button>
+                  <button type="button" class="choice-btn" data-choice-group="grade" data-value="middle_upper_primary">小中小高</button>
+                  <button type="button" class="choice-btn is-active" data-choice-group="grade" data-value="junior_high">初中</button>
+                </div>
+              </div>
+
+              
+              <div class="poem-picker">
+                <div class="poem-picker-head">
+                  <span class="field-title">选择诗歌</span>
+                  <span class="selected-count" id="selectedPoemCount">已选 0 首</span>
+                </div>
+                <div class="poem-tools">
+                  <input id="poemSearch" class="poem-search" type="search" placeholder="搜索诗人 / 诗名" />
+                  <button type="button" class="tool-btn" id="selectAllPoemsBtn">全选当前诗歌</button>
+                  <button type="button" class="tool-btn" id="clearPoemsBtn">清空选择</button>
+                </div>
+                <div class="author-filters" id="authorFilters" aria-label="诗人筛选"></div>
+                <div class="poem-list" id="poemList"></div>
+                <div class="selected-poems" id="selectedPoems" hidden></div>
+              </div>
+
+              <div class="grid two-col">
+                <div class="choice-field">
+                  <span class="field-title">画面人物</span>
+                  <div class="segmented" role="radiogroup" aria-label="画面人物">
+                    <button type="button" class="choice-btn is-active" data-choice-group="person" data-value="true">有人物</button>
+                    <button type="button" class="choice-btn" data-choice-group="person" data-value="false">无人物</button>
+                  </div>
+                </div>
+
+                <div class="choice-field">
+                  <span class="field-title">诗词文字</span>
+                  <div class="segmented" role="radiogroup" aria-label="诗词文字">
+                    <button type="button" class="choice-btn" data-choice-group="poem" data-value="true">有诗词</button>
+                    <button type="button" class="choice-btn is-active" data-choice-group="poem" data-value="false">无诗词</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="form-stage">
+
+              <div class="param-stack">
+                <div class="choice-field">
+                  <span class="field-title">图片比例</span>
+                  <div class="ratio-grid" role="radiogroup" aria-label="图片比例">
+                    <button type="button" class="ratio-card" data-choice-group="aspect" data-value="1:1"><span>1:1</span></button>
+                    <button type="button" class="ratio-card" data-choice-group="aspect" data-value="4:3"><span>4:3</span></button>
+                    <button type="button" class="ratio-card" data-choice-group="aspect" data-value="3:4"><span>3:4</span></button>
+                    <button type="button" class="ratio-card is-active" data-choice-group="aspect" data-value="16:9"><span>16:9</span></button>
+                    <button type="button" class="ratio-card" data-choice-group="aspect" data-value="9:16"><span>9:16</span></button>
+                  </div>
+                </div>
+
+                <div class="choice-field">
+                  <span class="field-title">生成数量</span>
+                  <div class="count-grid" role="radiogroup" aria-label="生成数量">
+                    <button type="button" class="count-card" data-choice-group="count" data-value="1">1</button>
+                    <button type="button" class="count-card" data-choice-group="count" data-value="2">2</button>
+                    <button type="button" class="count-card is-active" data-choice-group="count" data-value="4">4</button>
+                    <button type="button" class="count-card" data-choice-group="count" data-value="8">8</button>
+                    <button type="button" class="count-card" data-choice-group="count" data-value="12">12</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="form-stage soft-stage">
+              <div class="stage-head compact">
+                <span class="stage-index">3</span>
+                <div>
+                  <h3>补充要求（可选）</h3>
+                </div>
+              </div>
+              <textarea id="extraRequirement" name="extra_requirement" rows="3" placeholder="例如：人物不要过于悲苦；整体色调更温暖；画面更开阔，适合作为章节头图。"></textarea>
+            </section>
+
+            <div class="actions">
+              <button class="primary-btn" type="submit" id="submitBtn">开始生成</button>
+              <button class="ghost-btn" type="button" id="resetBtn">重置表单</button>
+              <button class="ghost-btn" type="button" id="rerunBtn" disabled>重新生成</button>
+              <button class="ghost-btn" type="button" id="stopBtn" disabled>停止生成</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel side-panel">
+          <div class="panel-head">
+            <div>
+              <h2>生成状态</h2>
+              <p>任务启动后，会在这里显示每一步进度。</p>
+            </div>
+          </div>
+          <div class="status-summary" id="statusSummary">
+            <div>
+              <strong>等待提交</strong>
+              <span>选择任务配置后点击“开始生成”。</span>
+            </div>
+          </div>
+          <div class="progress-list" id="progressList"></div>
+        </section>
+      </main>
+
+      <section class="panel result-panel">
+        <div class="panel-head result-head">
+          <div>
+            <h2>生成结果</h2>
+            <p>生成完成后，图片会以卡片形式展示在这里。</p>
+          </div>
+          <button class="download-all" type="button" id="downloadAllBtn" hidden>下载全部结果</button>
+        </div>
+        <div class="result-empty" id="resultEmpty">还没有生成结果。配置任务后点击开始生成即可。</div>
+        <div class="result-grid" id="resultGrid"></div>
+      </section>
+    </div>
+
+    <script src="/static/poems.js?v=20260905-poem2"></script>
+    <script src="/static/app.js?v=20260910-download-only"></script>
+  </body>
+</html>
+
+
+
+
+
+
+
+

@@ -1,0 +1,62 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# Python cache and test cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Node dependencies, if frontend tooling is added later
+node_modules/
+
+# Runtime outputs and local backups
+generated_outputs/
+backups/
+static/_ui_backup*/
+
+# Logs, temporary files, and local test reports
+*.log
+*.tmp
+*.temp
+*.bak
+.coverage
+coverage.xml
+htmlcov/
+
+# Excel lock files created while a workbook is open
+~$*.xls
+~$*.xlsx
+~$*.xlsm
+
+# Build outputs, if frontend tooling is added later
+dist/
+build/
+.cache/
+.parcel-cache/
+.vite/
+
+# Project management and local testing materials
+测试记录/
+后端改造清单.xlsx
+唐代建筑_花卉形制考据.xlsx
+
+# Prompt backups; keep active prompt files tracked
+prompt_assets/*backup*.txt
+prompt_assets/total_prompt_backup_*.txt
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo

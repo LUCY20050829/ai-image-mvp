@@ -1,0 +1,86 @@
+﻿[
+    {
+        "row":  3,
+        "person":  "陶渊明",
+        "dynasty":  "东晋",
+        "face":  "C:\\Users\\427483\\Desktop\\综合agent\\ai-book-project\\generated_images\\person_images\\faces\\陶渊明_face.webp"
+    },
+    {
+        "row":  4,
+        "person":  "虞世南",
+        "dynasty":  "唐代",
+        "face":  "C:\\Users\\427483\\Desktop\\综合agent\\ai-book-project\\generated_images\\person_images\\faces\\虞世南_face.webp"
+    },
+    {
+        "row":  5,
+        "person":  "贺知章",
+        "dynasty":  "唐代",
+        "face":  "C:\\Users\\427483\\Desktop\\综合agent\\ai-book-project\\generated_images\\person_images\\faces\\贺知章_face.webp"
+    },
+    {
+        "row":  6,
+        "person":  "孟浩然",
+        "dynasty":  "唐代",
+        "face":  "C:\\Users\\427483\\Desktop\\综合agent\\ai-book-project\\generated_images\\person_images\\faces\\孟浩然_face.png"
+    },
+    {
+        "row":  7,
+        "person":  "王昌龄",
+        "dynasty":  "唐代",
+        "face":  "C:\\Users\\427483\\Desktop\\综合agent\\ai-book-project\\generated_images\\person_images\\faces\\王昌龄_face.webp"
+    },
+    {
+        "row":  8,
+        "person":  "王维",
+        "dynasty":  "唐代",
+        "face":  "C:\\Users\\427483\\Desktop\\综合agent\\ai-book-project\\generated_images\\person_images\\faces\\王维_face.png"
+    },
+    {
+        "row":  9,
+        "person":  "李白",
+        "dynasty":  "唐代",
+        "face":  "C:\\Users\\427483\\Desktop\\综合agent\\ai-book-project\\generated_images\\person_images\\faces\\李白_face.webp"
+    },
+    {
+        "row":  10,
+        "person":  "杜甫",
+        "dynasty":  "唐代",
+        "face":  "C:\\Users\\427483\\Desktop\\综合agent\\ai-book-project\\generated_images\\person_images\\faces\\杜甫_face.webp"
+    },
+    {
+        "row":  11,
+        "person":  "韩愈",
+        "dynasty":  "唐代",
+        "face":  "C:\\Users\\427483\\Desktop\\综合agent\\ai-book-project\\generated_images\\person_images\\faces\\韩愈_face.webp"
+    },
+    {
+        "row":  12,
+        "person":  "刘禹锡",
+        "dynasty":  "唐代",
+        "face":  "C:\\Users\\427483\\Desktop\\综合agent\\ai-book-project\\generated_images\\person_images\\faces\\刘禹锡_face.webp"
+    },
+    {
+        "row":  13,
+        "person":  "白居易",
+        "dynasty":  "唐代",
+        "face":  "C:\\Users\\427483\\Desktop\\综合agent\\ai-book-project\\generated_images\\person_images\\faces\\白居易_face.webp"
+    },
+    {
+        "row":  14,
+        "person":  "李贺",
+        "dynasty":  "唐代",
+        "face":  "C:\\Users\\427483\\Desktop\\综合agent\\ai-book-project\\generated_images\\person_images\\faces\\李贺_face.webp"
+    },
+    {
+        "row":  15,
+        "person":  "杜牧",
+        "dynasty":  "唐代",
+        "face":  "C:\\Users\\427483\\Desktop\\综合agent\\ai-book-project\\generated_images\\person_images\\faces\\杜牧_face.webp"
+    },
+    {
+        "row":  16,
+        "person":  "李商隐",
+        "dynasty":  "唐代",
+        "face":  "C:\\Users\\427483\\Desktop\\综合agent\\ai-book-project\\generated_images\\person_images\\faces\\李商隐_face.webp"
+    }
+]
