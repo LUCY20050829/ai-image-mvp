@@ -1425,7 +1425,9 @@ def process_items_pipeline(job_id: str, items: list[dict], count: int, mode: str
     prompt_map = generate_prompts_for_items(items, count, job_id, mode)
     for item in items:
         row = item["row"]
-        emit(job_id, "progress", f"\u5df2\u5339\u914d\u8bd7\u6b4c\uff1a{compact(row.get('\u8bd7\u4eba'))}\u300a{compact(row.get('\u8bd7\u540d'))}\u300b\u3002\u5f53\u524d\u6a21\u5f0f\uff1a{mode}\u3002", out_dir=str(job_dir))
+        poet_name = compact(row.get("\u8bd7\u4eba"))
+        poem_title = compact(row.get("\u8bd7\u540d"))
+        emit(job_id, "progress", f"\u5df2\u5339\u914d\u8bd7\u6b4c\uff1a{poet_name}\u300a{poem_title}\u300b\u3002\u5f53\u524d\u6a21\u5f0f\uff1a{mode}\u3002", out_dir=str(job_dir))
     for idx, item in enumerate(items):
         save_item_prompts(job_dir, item, prompt_map[idx])
     emit(job_id, "progress", "\u6240\u6709\u63d0\u793a\u8bcd\u5df2\u4fdd\u5b58\uff0c\u5f00\u59cb\u6309\u7c7b\u522b\u7edf\u4e00\u751f\u56fe\u3002")
@@ -1726,6 +1728,7 @@ def build_web_request_text(data: dict) -> str:
     selected_poems = selected_poems_from_request(data)
     options = web_options_from_request(data)
     extra = options.get("extra_requirement") or ""
+    extra_text = extra or "\u65e0"
     if selected_poems:
         poem_names = "\u3001".join([f"{p.get('author', '')}\u300a{p.get('title', '')}\u300b" for p in selected_poems[:8]])
         if len(selected_poems) > 8:
@@ -1733,7 +1736,7 @@ def build_web_request_text(data: dict) -> str:
         return (
             f"\u7f51\u9875\u7ed3\u6784\u5316\u4efb\u52a1\uff1a{options.get('grade_label')}\u5b66\u6bb5\uff0c"
             f"\u6bd4\u4f8b{options.get('aspect_ratio')}\uff0c\u6bcf\u9996{options.get('image_count')}\u5f20\uff0c"
-            f"\u8bd7\u6b4c\uff1a{poem_names}\u3002\u8865\u5145\u8981\u6c42\uff1a{extra or '\u65e0'}"
+            f"\u8bd7\u6b4c\uff1a{poem_names}\u3002\u8865\u5145\u8981\u6c42\uff1a{extra_text}"
         )
     user_description = str(data.get("user_description") or data.get("extra_requirement") or "").strip()
     if not user_description:
