@@ -42,6 +42,7 @@ OUT_XLSX = SRC / "批量生成图.xlsx"
 BASE_URL = os.getenv("TAL_MLOPS_BASE_URL", "http://ai-service.tal.com")
 CHAT_MODEL = "deepseek-v4-flash"
 IMAGE_MODEL = "gpt-image-2"
+IMAGE_REQUEST_TIMEOUT_SECONDS = max(30, int(os.getenv("IMAGE_REQUEST_TIMEOUT_SECONDS", "240")))
 
 HEADERS_OUT = [
     "序号",
@@ -161,7 +162,7 @@ def credentials() -> tuple[str, str]:
     return app_id, app_key
 
 
-def post_json(path: str, payload: dict, headers: dict, timeout: int = 900) -> dict:
+def post_json(path: str, payload: dict, headers: dict, timeout: int = IMAGE_REQUEST_TIMEOUT_SECONDS) -> dict:
     parsed = urlparse(BASE_URL)
     cls = http.client.HTTPSConnection if parsed.scheme == "https" else http.client.HTTPConnection
     kwargs = {"timeout": timeout}
@@ -196,12 +197,12 @@ def multipart_body(fields: dict, files: list[tuple[str, Path]]) -> tuple[bytes, 
     return b"".join(chunks), boundary
 
 
-def post_multipart(path: str, fields: dict, files: list[tuple[str, Path]]) -> dict:
+def post_multipart(path: str, fields: dict, files: list[tuple[str, Path]], timeout: int = IMAGE_REQUEST_TIMEOUT_SECONDS) -> dict:
     app_id, app_key = credentials()
     body, boundary = multipart_body(fields, files)
     parsed = urlparse(BASE_URL)
     cls = http.client.HTTPSConnection if parsed.scheme == "https" else http.client.HTTPConnection
-    conn = cls(parsed.netloc or parsed.path, timeout=900)
+    conn = cls(parsed.netloc or parsed.path, timeout=timeout)
     conn.request(
         "POST",
         path,
@@ -228,7 +229,7 @@ def save_image_response(resp: dict, output: Path) -> None:
         return
     if first.get("url"):
         req = Request(first["url"], headers={"User-Agent": "ai-book-layered-batch/1.0"})
-        with urlopen(req, timeout=900) as r:
+        with urlopen(req, timeout=IMAGE_REQUEST_TIMEOUT_SECONDS) as r:
             output.write_bytes(r.read())
         return
     raise RuntimeError(json.dumps(resp, ensure_ascii=False))
@@ -538,10 +539,10 @@ def image_request(prompt: str, output: Path, refs: list[Path]) -> tuple[bool, st
     for attempt in range(1, 4):
         try:
             if refs:
-                resp = post_multipart("/openai-compatible/v1/images/edits", {"model": IMAGE_MODEL, "prompt": prompt}, [("image[]", p) for p in refs])
+                resp = post_multipart("/openai-compatible/v1/images/edits", {"model": IMAGE_MODEL, "prompt": prompt}, [("image[]", p) for p in refs], timeout=IMAGE_REQUEST_TIMEOUT_SECONDS)
             else:
                 app_id, app_key = credentials()
-                resp = post_json("/openai-compatible/v1/images/generations", {"model": IMAGE_MODEL, "prompt": prompt}, {"api-key": f"{app_id}:{app_key}"}, timeout=900)
+                resp = post_json("/openai-compatible/v1/images/generations", {"model": IMAGE_MODEL, "prompt": prompt}, {"api-key": f"{app_id}:{app_key}"}, timeout=IMAGE_REQUEST_TIMEOUT_SECONDS)
             save_image_response(resp, output)
             return True, f"generated {output.name}"
         except Exception as exc:

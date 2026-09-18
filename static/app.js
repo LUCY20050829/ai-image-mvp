@@ -370,7 +370,7 @@ window.addEventListener("DOMContentLoaded", () => {
       await fetch("/api/cancel", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ job_id: jobId }),
+        body: JSON.stringify({ job_id: currentJobId }),
       });
     } catch (_) {}
   }
@@ -443,6 +443,10 @@ window.addEventListener("DOMContentLoaded", () => {
           appendProgress(eventData.message, eventData.partial ? "warn" : "done");
           setStatus(eventData.partial ? "部分完成" : "已完成");
           setSummary(eventData.title || (eventData.partial ? "部分完成" : "全部成功"), eventData.message || "本次任务已处理完成。");
+          setRunning(false);
+          currentJobId = null;
+          if (eventSource) eventSource.close();
+          eventSource = null;
           if (eventData.download) {
             downloadAllBtn.hidden = false;
             downloadAllBtn.dataset.href = eventData.download;
@@ -451,12 +455,24 @@ window.addEventListener("DOMContentLoaded", () => {
         if (eventData.kind === "cancelled") {
           appendProgress(eventData.message, "warn");
           setStatus("已停止");
-          setSummary("任务已停止", "后续步骤已取消，已生成内容仍会保留。");
+          setSummary(eventData.title || "任务已停止", eventData.message || "后续步骤已取消，已生成内容仍会保留。");
+          setRunning(false);
+          currentJobId = null;
+          if (eventData.download) {
+            downloadAllBtn.hidden = false;
+            downloadAllBtn.dataset.href = eventData.download;
+          }
         }
         if (eventData.kind === "error") {
           appendProgress(eventData.message, "error");
-          setStatus("失败");
-          setSummary("任务失败", eventData.message || "请稍后重试或缩小任务范围。");
+          setStatus(eventData.partial ? "部分完成" : "失败");
+          setSummary(eventData.title || "任务失败", eventData.message || "请稍后重试或缩小任务范围。");
+          setRunning(false);
+          currentJobId = null;
+          if (eventData.download) {
+            downloadAllBtn.hidden = false;
+            downloadAllBtn.dataset.href = eventData.download;
+          }
         }
         if (eventData.kind === "close") {
           if (eventSource) eventSource.close();

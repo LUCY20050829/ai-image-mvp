@@ -1,5 +1,5 @@
-﻿{
-  "updated_at": "2026-09-07 15:26:46",
+{
+  "updated_at": "2026-09-15 14:19:46",
   "note": "按学段整理的人物脸图。后端优先按 grade_band 子目录查找，找不到再回退旧扁平目录。",
   "grades": {
     "lower_primary": [
@@ -161,6 +161,118 @@
         "grade_band": "middle_upper_primary",
         "person": "韩愈",
         "path": "assets/faces/middle_upper_primary/小中小高_韩愈_face.webp"
+      }
+    ],
+    "junior_high": [
+      {
+        "grade_band": "junior_high",
+        "person": "刘禹锡",
+        "source_workbook": "C:\\Users\\427483\\Desktop\\初中人物图.xlsx",
+        "source_sheet": "Sheet1",
+        "source_row": 3,
+        "source_col": 4,
+        "image_id": "ID_2084E78DD1914982B6AF777A3385D597",
+        "path": "D:/ai-image-mvp/assets/faces/junior_high/junior_high_刘禹锡_face_2.webp"
+      },
+      {
+        "grade_band": "junior_high",
+        "person": "朱自清",
+        "source_workbook": "C:\\Users\\427483\\Desktop\\初中人物图.xlsx",
+        "source_sheet": "Sheet1",
+        "source_row": 10,
+        "source_col": 4,
+        "image_id": "ID_71576FF5525E4958BE785A1FDA18E469",
+        "path": "D:/ai-image-mvp/assets/faces/junior_high/junior_high_朱自清_face_2.webp"
+      },
+      {
+        "grade_band": "junior_high",
+        "person": "李商隐",
+        "source_workbook": "C:\\Users\\427483\\Desktop\\初中人物图.xlsx",
+        "source_sheet": "Sheet1",
+        "source_row": 4,
+        "source_col": 4,
+        "image_id": "ID_F61907CE60B14543A19B76E35D78437D",
+        "path": "D:/ai-image-mvp/assets/faces/junior_high/junior_high_李商隐_face_2.webp"
+      },
+      {
+        "grade_band": "junior_high",
+        "person": "李白",
+        "source_workbook": "C:\\Users\\427483\\Desktop\\初中人物图.xlsx",
+        "source_sheet": "Sheet1",
+        "source_row": 2,
+        "source_col": 4,
+        "image_id": "ID_EF3E4AACC803411181BF5E68C8C5F3B1",
+        "path": "D:/ai-image-mvp/assets/faces/junior_high/junior_high_李白_face_2.webp"
+      },
+      {
+        "grade_band": "junior_high",
+        "person": "李贺",
+        "source_workbook": "C:\\Users\\427483\\Desktop\\初中人物图.xlsx",
+        "source_sheet": "Sheet1",
+        "source_row": 22,
+        "source_col": 4,
+        "image_id": "ID_EBD7CEB0F9864FEA94068D630F2C3999",
+        "path": "D:/ai-image-mvp/assets/faces/junior_high/junior_high_李贺_face_2.webp"
+      },
+      {
+        "grade_band": "junior_high",
+        "person": "杜牧",
+        "source_workbook": "C:\\Users\\427483\\Desktop\\初中人物图.xlsx",
+        "source_sheet": "Sheet1",
+        "source_row": 19,
+        "source_col": 4,
+        "image_id": "ID_9ABF2FC5F6AC4FC990D5EC6AC5BFA150",
+        "path": "D:/ai-image-mvp/assets/faces/junior_high/junior_high_杜牧_face_2.webp"
+      },
+      {
+        "grade_band": "junior_high",
+        "person": "柳宗元",
+        "source_workbook": "C:\\Users\\427483\\Desktop\\初中人物图.xlsx",
+        "source_sheet": "Sheet1",
+        "source_row": 18,
+        "source_col": 4,
+        "image_id": "ID_92246CFF6CEB435F8A226050888465F1",
+        "path": "D:/ai-image-mvp/assets/faces/junior_high/junior_high_柳宗元_face_2.webp"
+      },
+      {
+        "grade_band": "junior_high",
+        "person": "白居易",
+        "source_workbook": "C:\\Users\\427483\\Desktop\\初中人物图.xlsx",
+        "source_sheet": "Sheet1",
+        "source_row": 17,
+        "source_col": 4,
+        "image_id": "ID_4259C11BDAC0425FA63FB1675566CCA8",
+        "path": "D:/ai-image-mvp/assets/faces/junior_high/junior_high_白居易_face_2.webp"
+      },
+      {
+        "grade_band": "junior_high",
+        "person": "范仲淹",
+        "source_workbook": "C:\\Users\\427483\\Desktop\\初中人物图.xlsx",
+        "source_sheet": "Sheet1",
+        "source_row": 5,
+        "source_col": 3,
+        "image_id": "ID_1D2920E20F154E1F8E83446F7527008C",
+        "path": "D:/ai-image-mvp/assets/faces/junior_high/junior_high_范仲淹_face.webp"
+      },
+      {
+        "grade_band": "junior_high",
+        "person": "陆游",
+        "source_workbook": "C:\\Users\\427483\\Desktop\\初中人物图.xlsx",
+        "source_sheet": "Sheet1",
+        "source_row": 21,
+        "source_col": 3,
+        "image_id": "ID_73C59648E93641709E61B9BAD325F7AB",
+        "path": "D:/ai-image-mvp/assets/faces/junior_high/junior_high_陆游_face.webp"
+      },
+      {
+        "grade_band": "junior_high",
+        "person": "韩愈",
+        "source_workbook": "C:\\Users\\427483\\Desktop\\初中人物图.xlsx",
+        "source_sheet": "Sheet1",
+        "source_row": 16,
+        "source_col": 4,
+        "image_id": "ID_725031BA256D4C4F8DCD05804595AF8E",
+        "path": "D:/ai-image-mvp/assets/faces/junior_high/junior_high_韩愈_face_2.webp"
       }
     ]
   },

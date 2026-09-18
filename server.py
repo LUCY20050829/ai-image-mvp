@@ -78,6 +78,7 @@ IMAGE_WORKERS = int(os.getenv("IMAGE_WORKERS", "40"))
 IMAGE_BATCH_SIZE = max(1, int(os.getenv("IMAGE_BATCH_SIZE", "8")))
 IMAGE_BATCH_INTERVAL_SECONDS = max(0, int(os.getenv("IMAGE_BATCH_INTERVAL_SECONDS", "10")))
 IMAGE_STALL_HINT_SECONDS = int(os.getenv("IMAGE_STALL_HINT_SECONDS", "90"))
+IMAGE_REQUEST_TIMEOUT_SECONDS = max(30, int(os.getenv("IMAGE_REQUEST_TIMEOUT_SECONDS", "240")))
 IMAGE_RETRY_ROUNDS = max(0, int(os.getenv("IMAGE_RETRY_ROUNDS", "2")))
 IMAGE_RETRY_DELAY_SECONDS = max(0, int(os.getenv("IMAGE_RETRY_DELAY_SECONDS", "30")))
 API_RATE_PER_MINUTE = int(os.getenv("API_RATE_PER_MINUTE", "100"))
@@ -123,14 +124,14 @@ def _rate_key(path: str, payload: dict | None = None) -> str:
     return "deepseek"
 
 
-def post_json_rate_limited(path: str, payload: dict, headers: dict, timeout: int = 900) -> dict:
+def post_json_rate_limited(path: str, payload: dict, headers: dict, timeout: int = IMAGE_REQUEST_TIMEOUT_SECONDS) -> dict:
     _rate_limiters[_rate_key(path, payload)].wait()
     return _base_post_json(path, payload, headers, timeout=timeout)
 
 
-def post_multipart_rate_limited(path: str, fields: dict, files: list[tuple[str, Path]]) -> dict:
+def post_multipart_rate_limited(path: str, fields: dict, files: list[tuple[str, Path]], timeout: int = IMAGE_REQUEST_TIMEOUT_SECONDS) -> dict:
     _rate_limiters[_rate_key(path, fields)].wait()
-    return _base_post_multipart(path, fields, files)
+    return _base_post_multipart(path, fields, files, timeout=timeout)
 
 
 
@@ -280,6 +281,13 @@ def ensure_not_cancelled(job_id: str) -> None:
         raise InterruptedError("任务已停止")
 
 
+def cancellable_sleep(job_id: str, seconds: float) -> None:
+    deadline = time.time() + max(0, seconds)
+    while time.time() < deadline:
+        ensure_not_cancelled(job_id)
+        time.sleep(min(1, max(0, deadline - time.time())))
+
+
 def norm(text: str) -> str:
     return re.sub(r"[《》\s・·/（）()【】\[\]「」『』,，.。:：;；!！?？]", "", str(text or ""))
 
@@ -382,6 +390,7 @@ def parse_with_agent(text: str) -> tuple[dict, str]:
         parsed["mode"] = parsed.get("mode") or fallback["mode"]
         parsed["all_poems"] = bool(parsed.get("all_poems") or fallback.get("all_poems"))
         return {**fallback, **{k: v for k, v in parsed.items() if v or k == "all_poems"}}, f"\u5df2\u7531 {CODEX_MODEL} \u5b8c\u6210\u4efb\u52a1\u89e3\u6790\u3002"
+        emit(job_id, "close", "")
     except Exception as exc:
         return fallback, f"{CODEX_MODEL} \u89e3\u6790\u5931\u8d25\uff0c\u5df2\u4f7f\u7528\u672c\u5730\u89c4\u5219\u515c\u5e95\uff1a{exc}"
 
@@ -1039,10 +1048,10 @@ def run_image(prompt: str, out: Path, refs: list[Path]) -> tuple[bool, str]:
         return True, f"exists {out.name}"
     try:
         if refs:
-            resp = base.post_multipart("/openai-compatible/v1/images/edits", {"model": base.IMAGE_MODEL, "prompt": prompt}, [("image[]", p) for p in refs])
+            resp = base.post_multipart("/openai-compatible/v1/images/edits", {"model": base.IMAGE_MODEL, "prompt": prompt}, [("image[]", p) for p in refs], timeout=IMAGE_REQUEST_TIMEOUT_SECONDS)
         else:
             app_id, app_key = base.credentials()
-            resp = base.post_json("/openai-compatible/v1/images/generations", {"model": base.IMAGE_MODEL, "prompt": prompt}, {"api-key": f"{app_id}:{app_key}"}, timeout=900)
+            resp = base.post_json("/openai-compatible/v1/images/generations", {"model": base.IMAGE_MODEL, "prompt": prompt}, {"api-key": f"{app_id}:{app_key}"}, timeout=IMAGE_REQUEST_TIMEOUT_SECONDS)
         base.save_image_response(resp, out)
         return True, f"generated {out.name}"
     except Exception as exc:
@@ -1312,24 +1321,30 @@ def run_parallel_image_stage(job_id: str, stage: str, image_jobs: list[dict], wo
             last_heartbeat = time.time()
             stage_started = time.time()
             stall_hint_sent = False
-            with concurrent.futures.ThreadPoolExecutor(max_workers=len(batch_jobs)) as ex:
-                pending = {}
+            ex = concurrent.futures.ThreadPoolExecutor(max_workers=len(batch_jobs))
+            pending = {}
+            try:
                 for job in batch_jobs:
+                    ensure_not_cancelled(job_id)
                     job_started = time.time()
                     fut = ex.submit(run_image, job["prompt"], job["out"], job.get("refs", []))
                     pending[fut] = {**job, "_metric_started": job_started}
                 while pending:
-                    ensure_not_cancelled(job_id)
+                    if is_cancelled(job_id):
+                        for fut in pending:
+                            fut.cancel()
+                        ex.shutdown(wait=False, cancel_futures=True)
+                        raise InterruptedError("cancelled")
                     finished, _ = concurrent.futures.wait(pending, timeout=15, return_when=concurrent.futures.FIRST_COMPLETED)
                     if not finished:
                         now = time.time()
                         if now - last_heartbeat >= 15:
                             elapsed = int(now - batch_started)
                             if not stall_hint_sent and now - stage_started >= IMAGE_STALL_HINT_SECONDS:
-                                msg = f"{stage} {round_name} {done}/{len(round_jobs)}：本批还有 {len(pending)} 张较慢，已等待 {elapsed} 秒，可能在排队/429 限流。"
+                                msg = f"{stage} {round_name} {done}/{len(round_jobs)}\uff1a\u672c\u6279\u8fd8\u6709 {len(pending)} \u5f20\u8f83\u6162\uff0c\u5df2\u7b49\u5f85 {elapsed} \u79d2\uff0c\u53ef\u80fd\u5728\u6392\u961f/429 \u9650\u6d41/\u91cd\u8bd5\u3002"
                                 stall_hint_sent = True
                             else:
-                                msg = f"{stage} {round_name} {done}/{len(round_jobs)}：本批还有 {len(pending)} 张在等接口返回，已等待 {elapsed} 秒。"
+                                msg = f"{stage} {round_name} {done}/{len(round_jobs)}\uff1a\u672c\u6279\u8fd8\u6709 {len(pending)} \u5f20\u5728\u7b49\u63a5\u53e3\u8fd4\u56de\uff0c\u5df2\u7b49\u5f85 {elapsed} \u79d2\u3002"
                             emit(job_id, "progress", msg, slot=f"image_{stage}")
                             last_heartbeat = now
                         continue
@@ -1357,9 +1372,11 @@ def run_parallel_image_stage(job_id: str, stage: str, image_jobs: list[dict], wo
                             retryable=is_retryable_image_error(msg),
                             is_final=False,
                         )
-                        retry_note = "；已加入 429 补跑队列" if (not ok and is_retryable_image_error(msg) and round_index < IMAGE_RETRY_ROUNDS) else ""
-                        emit(job_id, "progress", f"{stage} {round_name} {done}/{len(round_jobs)}：{job['label']}：{msg}，耗时 {elapsed} 秒{retry_note}", ok=ok, slot=f"image_{stage}")
+                        retry_note = "\uff1b\u5df2\u52a0\u5165 429 \u8865\u8dd1\u961f\u5217" if (not ok and is_retryable_image_error(msg) and round_index < IMAGE_RETRY_ROUNDS) else ""
+                        emit(job_id, "progress", f"{stage} {round_name} {done}/{len(round_jobs)}\uff1a{job['label']}\uff1a{msg}\uff0c\u8017\u65f6 {elapsed} \u79d2{retry_note}", ok=ok, slot=f"image_{stage}")
                         last_heartbeat = time.time()
+            finally:
+                ex.shutdown(wait=not is_cancelled(job_id), cancel_futures=True)
             batch_elapsed = round(time.time() - batch_started, 1)
             batch_round_results = round_results[-len(batch_jobs):]
             append_image_metric(
@@ -1377,7 +1394,7 @@ def run_parallel_image_stage(job_id: str, stage: str, image_jobs: list[dict], wo
             emit(job_id, "progress", f"{stage}：{round_name}第 {batch_index + 1}/{total_batches} 批结束，耗时 {batch_elapsed} 秒；成功 {sum(1 for x in batch_round_results if x.get('ok'))}/{len(batch_jobs)}。", slot=f"image_{stage}")
             if batch_index < total_batches - 1 and IMAGE_BATCH_INTERVAL_SECONDS:
                 emit(job_id, "progress", f"{stage}：{round_name}第 {batch_index + 1}/{total_batches} 批完成，等待 {IMAGE_BATCH_INTERVAL_SECONDS} 秒后继续下一批。", slot=f"image_{stage}")
-                time.sleep(IMAGE_BATCH_INTERVAL_SECONDS)
+                cancellable_sleep(job_id, IMAGE_BATCH_INTERVAL_SECONDS)
         return round_results
 
     current_jobs = list(image_jobs)
@@ -1387,7 +1404,7 @@ def run_parallel_image_stage(job_id: str, stage: str, image_jobs: list[dict], wo
                 break
             if IMAGE_RETRY_DELAY_SECONDS:
                 emit(job_id, "progress", f"{stage}：上一轮有 {len(current_jobs)} 张遇到限流/超时，等待 {IMAGE_RETRY_DELAY_SECONDS} 秒后统一补跑。", slot=f"image_{stage}")
-                time.sleep(IMAGE_RETRY_DELAY_SECONDS)
+                cancellable_sleep(job_id, IMAGE_RETRY_DELAY_SECONDS)
             else:
                 emit(job_id, "progress", f"{stage}：上一轮有 {len(current_jobs)} 张遇到限流/超时，开始统一补跑。", slot=f"image_{stage}")
         round_results = run_attempt_round(current_jobs, round_index)
@@ -1716,12 +1733,48 @@ def run_job(job_id: str, user_text: str, request_data: dict | None = None) -> No
             duration_seconds=duration_seconds,
             title=done_title,
         )
+        emit(job_id, "close", "")
     except InterruptedError:
-        write_job_summary(job_id, "cancelled", images=images, failed_count=max(0, int(jobs[job_id].get("expected_images") or expected_images or 0) - len(images)))
-        emit(job_id, "cancelled", "\u5df2\u505c\u6b62\uff1a\u540e\u7eed\u6b65\u9aa4\u4e0d\u4f1a\u7ee7\u7eed\u6267\u884c\u3002")
+        target_count = int(jobs[job_id].get("expected_images") or expected_images or 0)
+        success_count = len(images)
+        failed_count = max(0, target_count - success_count)
+        jobs[job_id]["download"] = f"/api/download?job={job_id}"
+        jobs[job_id]["save_url"] = f"/api/save-results"
+        write_job_summary(job_id, "cancelled", images=images, target_count=target_count, success_count=success_count, failed_count=failed_count, partial=success_count > 0)
+        emit(
+            job_id,
+            "cancelled",
+            f"\u5df2\u505c\u6b62\uff1a\u5df2\u751f\u6210 {success_count} \u5f20\uff0c\u672a\u5b8c\u6210 {failed_count} \u5f20\u3002\u5df2\u751f\u6210\u56fe\u7247\u4ecd\u53ef\u9884\u89c8\u548c\u4e0b\u8f7d\u3002",
+            download=jobs[job_id]["download"] if success_count else "",
+            save_url=jobs[job_id]["save_url"],
+            success_count=success_count,
+            target_count=target_count,
+            failed_count=failed_count,
+            partial=success_count > 0,
+            title="\u5df2\u505c\u6b62\uff0c\u4fdd\u7559\u5df2\u751f\u6210\u56fe\u7247" if success_count else "\u5df2\u505c\u6b62",
+        )
+        emit(job_id, "close", "")
     except Exception as exc:
-        write_job_summary(job_id, "error", images=images, error=str(exc), failed_count=max(0, int(jobs[job_id].get("expected_images") or expected_images or 0) - len(images)))
-        emit(job_id, "error", f"\u4efb\u52a1\u5931\u8d25\uff1a{exc}", ok=False)
+        target_count = int(jobs[job_id].get("expected_images") or expected_images or 0)
+        success_count = len(images)
+        failed_count = max(0, target_count - success_count)
+        jobs[job_id]["download"] = f"/api/download?job={job_id}"
+        jobs[job_id]["save_url"] = f"/api/save-results"
+        write_job_summary(job_id, "error", images=images, error=str(exc), target_count=target_count, success_count=success_count, failed_count=failed_count, partial=success_count > 0)
+        emit(
+            job_id,
+            "error",
+            f"\u4efb\u52a1\u5931\u8d25\uff1a{exc}\u3002\u5df2\u751f\u6210 {success_count} \u5f20\uff0c\u4ecd\u53ef\u9884\u89c8\u548c\u4e0b\u8f7d\u3002" if success_count else f"\u4efb\u52a1\u5931\u8d25\uff1a{exc}",
+            ok=False,
+            download=jobs[job_id]["download"] if success_count else "",
+            save_url=jobs[job_id]["save_url"],
+            success_count=success_count,
+            target_count=target_count,
+            failed_count=failed_count,
+            partial=success_count > 0,
+            title="\u5931\u8d25\uff0c\u4fdd\u7559\u5df2\u751f\u6210\u56fe\u7247" if success_count else "\u4efb\u52a1\u5931\u8d25",
+        )
+        emit(job_id, "close", "")
 
 
 def build_web_request_text(data: dict) -> str:
@@ -1801,7 +1854,8 @@ class Handler(BaseHTTPRequestHandler):
             job_id = data.get("job_id") or ""
             if job_id in jobs:
                 jobs[job_id]["cancelled"] = True
-                emit(job_id, "progress", "已收到停止请求，正在结束当前步骤。")
+                emit(job_id, "cancelled", "\u5df2\u505c\u6b62\uff1a\u6b63\u5728\u4e2d\u7684\u63a5\u53e3\u8bf7\u6c42\u4f1a\u5728\u540e\u53f0\u8d85\u65f6\u7ed3\u675f\uff0c\u540e\u7eed\u6b65\u9aa4\u4e0d\u4f1a\u7ee7\u7eed\u6267\u884c\u3002")
+                emit(job_id, "close", "")
                 self.send_json({"ok": True})
             else:
                 self.send_json({"ok": False, "error": "job not found"}, 404)
